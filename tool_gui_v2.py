@@ -9,7 +9,9 @@ from tkinter import *
 # import tkMessageBox
 from PIL import ImageTk,Image
 from tkinter.messagebox import showinfo
+import numpy as np
 
+np.random.seed(0)
 idx=0
 ls_img = []
 ls_json= []
@@ -18,8 +20,9 @@ parser = argparse.ArgumentParser(description='Labeling tool for license plate OC
 parser.add_argument('--dataset', type=str, required=True,
                         help='Path of dataset')
 args = parser.parse_args()
+
 for img_name in os.listdir(args.dataset):
-	label_fn = os.path.join(args.dataset, os.path.splitext(os.path.basename(img_name))[0] + '.json')
+	label_fn = os.path.join(args.dataset,os.path.splitext(os.path.basename(img_name))[0] + '.json')
 	if os.path.exists(label_fn):
 		continue
 	ls_json.append(label_fn)
@@ -66,25 +69,27 @@ def chooseImage():
 	entry1.delete(0, "end")
 
 def prevImage(event=None):
-	global idx, image_id, canvas1, v_expression,v_gender,v_occlusion,current_path
+	global idx, image_id, canvas1, v_expression,v_gender,v_occlusion,current_path,expression_label, gender_label, occlusion_label
 	idx-=1
 	if idx<0:
 		show_selected_size("Can't back")
 		return
 	
 	current_path.set("Current Path: {}                      ID: {}".format(ls_img[idx],idx))
-	json_part = os.path.join(args.dataset, os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')
-	f = open(json_part)
-	data = json.load(f)
-	expression  = data["expression"]
-	gender = data["gender"]
-	occlusion = data["occlusion"]
-	# v_expression.set("0")
-	# v_gender.set("0")
-	# v_occlusion.set("0")
-	v_expression.set(expression)
-	v_gender.set(gender)
-	v_occlusion.set(occlusion)
+	if os.path.exists(os.path.join(args.dataset,os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')):
+		json_part = os.path.join(args.dataset, os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')
+		f = open(json_part)
+		data = json.load(f)
+		v_expression.set(data["expression"])
+		v_gender.set(data["gender"])
+		v_occlusion.set(data["occlusion"])
+	else:
+		v_expression.set(" ")
+		v_gender.set(" ")
+		v_occlusion.set(" ")
+		expression_label = ""
+		gender_label = ""
+		occlusion_label = ""
 	img0 = Image.open(ls_img[idx])
 	w,h= img0.size
 	side_max = max(w,h)
@@ -118,9 +123,20 @@ def nextImage(event=None):
 		show_selected_size("Job Done! Thank you !!!")
 		return
 	current_path.set("Current Path: {}                      ID: {}".format(ls_img[idx],idx))
-	v_expression.set("0")
-	v_gender.set("0")
-	v_occlusion.set("0")
+	if os.path.exists(os.path.join(args.dataset,os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')):
+		json_part = os.path.join(args.dataset, os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')
+		f = open(json_part)
+		data = json.load(f)
+		v_expression.set(data["expression"])
+		v_gender.set(data["gender"])
+		v_occlusion.set(data["occlusion"])
+	else:
+		v_expression.set(" ")
+		v_gender.set(" ")
+		v_occlusion.set(" ")
+		expression_label = ""
+		gender_label = ""
+		occlusion_label = ""
 	
 	img0 = Image.open(ls_img[idx])
 	w,h= img0.size
