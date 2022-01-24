@@ -14,7 +14,7 @@ import numpy as np
 np.random.seed(0)
 idx=0
 ls_img = []
-ls_json= []
+
 
 parser = argparse.ArgumentParser(description='Labeling tool for license plate OCR')
 parser.add_argument('--dataset', type=str, required=True,
@@ -22,10 +22,9 @@ parser.add_argument('--dataset', type=str, required=True,
 args = parser.parse_args()
 
 for img_name in os.listdir(args.dataset):
-	label_fn = os.path.join(args.dataset,os.path.splitext(os.path.basename(img_name))[0] + '.json')
-	if os.path.exists(label_fn):
+	if img_name.endswith(".json"):
 		continue
-	ls_json.append(label_fn)
+	
 	ls_img.append(os.path.join(args.dataset, img_name))
 
 def show_selected_size(msg):
@@ -69,10 +68,11 @@ def chooseImage():
 	entry1.delete(0, "end")
 
 def prevImage(event=None):
-	global idx, image_id, canvas1, v_expression,v_gender,v_occlusion,current_path,expression_label, gender_label, occlusion_label
+	global idx, image_id, canvas1, v_expression,v_gender,current_path,expression_label, gender_label
 	idx-=1
 	if idx<0:
 		show_selected_size("Can't back")
+		idx = 0
 		return
 	
 	current_path.set("Current Path: {}                      ID: {}".format(ls_img[idx],idx))
@@ -82,14 +82,16 @@ def prevImage(event=None):
 		data = json.load(f)
 		v_expression.set(data["expression"])
 		v_gender.set(data["gender"])
-		v_occlusion.set(data["occlusion"])
+		expression_label = v_expression.get()
+		gender_label = v_gender.get()
+		
 	else:
 		v_expression.set(" ")
 		v_gender.set(" ")
-		v_occlusion.set(" ")
+		
 		expression_label = ""
 		gender_label = ""
-		occlusion_label = ""
+		
 	img0 = Image.open(ls_img[idx])
 	w,h= img0.size
 	side_max = max(w,h)
@@ -113,10 +115,11 @@ def prevImage(event=None):
 	canvas1.itemconfig(image_id, image=img_)
 
 def nextImage(event=None):
-	global idx, image_id, canvas1,expression_label,gender_label,occlusion_label,v_expression,v_gender,v_occlusion,current_path
+	global idx, image_id, canvas1,expression_label,gender_label,v_expression,v_gender,current_path
+
 	if len(expression_label):
-		with open(ls_json[idx], 'w',encoding='utf-8') as f:
-			res = {"expression": expression_label,"gender":gender_label,"occlusion":occlusion_label,"path": ls_img[idx]}
+		with open(os.path.join(args.dataset,os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json'), 'w',encoding='utf-8') as f:
+			res = {"expression": expression_label,"gender":gender_label,"path": ls_img[idx]}
 			json.dump(res, f, ensure_ascii=False)
 	idx+=1
 	if idx==len(ls_img):
@@ -129,14 +132,16 @@ def nextImage(event=None):
 		data = json.load(f)
 		v_expression.set(data["expression"])
 		v_gender.set(data["gender"])
-		v_occlusion.set(data["occlusion"])
+		expression_label = v_expression.get()
+		gender_label = v_gender.get()
+		
 	else:
 		v_expression.set(" ")
 		v_gender.set(" ")
-		v_occlusion.set(" ")
+		
 		expression_label = ""
 		gender_label = ""
-		occlusion_label = ""
+		
 	
 	img0 = Image.open(ls_img[idx])
 	w,h= img0.size
@@ -199,14 +204,23 @@ frame2.pack()
 canvas2 = tk.Canvas(frame2, width = 700, height = 300,  relief = 'raised')
 canvas2.pack()
 def clicked():
-	global expression_label,gender_label,occlusion_label
+	global expression_label,gender_label
 	expression_label = v_expression.get()
 	gender_label = v_gender.get()
-	occlusion_label = v_occlusion.get()
 
 v_expression = StringVar(canvas2, "0")
 v_gender = StringVar(canvas2, "0")
-v_occlusion = StringVar(canvas2, "0")
+
+
+if os.path.exists(os.path.join(args.dataset,os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')):
+	json_part = os.path.join(args.dataset, os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')
+	f = open(json_part)
+	data = json.load(f)
+	v_expression.set(data["expression"])
+	v_gender.set(data["gender"])
+	
+	expression_label = v_expression.get()
+	gender_label = v_gender.get()
 
 #expression_values = ['Uncertain', 'None', 'Happy','Contempt','Surprised','Sadness','Disgusted','Fear','Angry','Neutral']
 expression_values = ['Uncertain', 'None', 'Positive','Surprised','Negative','Neutral']
