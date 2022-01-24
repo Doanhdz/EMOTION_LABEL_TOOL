@@ -19,7 +19,7 @@ parser.add_argument('--dataset', type=str, required=True,
                         help='Path of dataset')
 args = parser.parse_args()
 for img_name in os.listdir(args.dataset):
-	label_fn = os.path.join(args.dataset, img_name.rsplit(".")[0] + '.json')
+	label_fn = os.path.join(args.dataset, os.path.splitext(os.path.basename(img_name))[0] + '.json')
 	if os.path.exists(label_fn):
 		continue
 	ls_json.append(label_fn)
@@ -71,10 +71,20 @@ def prevImage(event=None):
 	if idx<0:
 		show_selected_size("Can't back")
 		return
+	
 	current_path.set("Current Path: {}                      ID: {}".format(ls_img[idx],idx))
-	v_expression.set("0")
-	v_gender.set("0")
-	v_occlusion.set("0")
+	json_part = os.path.join(args.dataset, os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')
+	f = open(json_part)
+	data = json.load(f)
+	expression  = data["expression"]
+	gender = data["gender"]
+	occlusion = data["occlusion"]
+	# v_expression.set("0")
+	# v_gender.set("0")
+	# v_occlusion.set("0")
+	v_expression.set(expression)
+	v_gender.set(gender)
+	v_occlusion.set(occlusion)
 	img0 = Image.open(ls_img[idx])
 	w,h= img0.size
 	side_max = max(w,h)
@@ -111,6 +121,7 @@ def nextImage(event=None):
 	v_expression.set("0")
 	v_gender.set("0")
 	v_occlusion.set("0")
+	
 	img0 = Image.open(ls_img[idx])
 	w,h= img0.size
 	side_max = max(w,h)
