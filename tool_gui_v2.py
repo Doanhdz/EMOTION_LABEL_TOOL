@@ -14,8 +14,15 @@ import numpy as np
 np.random.seed(0)
 f = open("./current_id.txt")
 line = f.readline()
-idx = int(line[0])
 f.close()
+if len(line) == 0:
+	idx = 0
+	f = open("./current_id.txt",'w')
+	f.write('{}'.format(idx))
+	f.close()
+else:
+	idx = int(line[0])
+
 ls_img = []
 
 
