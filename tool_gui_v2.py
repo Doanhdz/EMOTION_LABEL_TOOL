@@ -12,7 +12,10 @@ from tkinter.messagebox import showinfo
 import numpy as np
 
 np.random.seed(0)
-idx=0
+f = open("./current_id.txt")
+line = f.readline()
+idx = int(line[0])
+f.close()
 ls_img = []
 
 
@@ -76,6 +79,9 @@ def prevImage(event=None):
 		return
 	
 	current_path.set("Current Path: {}                      ID: {}".format(ls_img[idx],idx))
+	f = open("./current_id.txt",'w')
+	f.write('{}'.format(idx))
+	f.close()
 	if os.path.exists(os.path.join(args.dataset,os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')):
 		json_part = os.path.join(args.dataset, os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')
 		f = open(json_part)
@@ -126,6 +132,9 @@ def nextImage(event=None):
 		show_selected_size("Job Done! Thank you !!!")
 		return
 	current_path.set("Current Path: {}                      ID: {}".format(ls_img[idx],idx))
+	f = open("./current_id.txt",'w')
+	f.write('{}'.format(idx))
+	f.close()
 	if os.path.exists(os.path.join(args.dataset,os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')):
 		json_part = os.path.join(args.dataset, os.path.splitext(os.path.basename(ls_img[idx]))[0] + '.json')
 		f = open(json_part)
@@ -237,7 +246,7 @@ icon_photos = {
 	'Negative': ImageTk.PhotoImage(Image.open("./emotion_icon/angry.jpg").resize(icon_size)),
 	'Neutral': ImageTk.PhotoImage(Image.open("./emotion_icon/neutral.png").resize(icon_size))
 }
-gender_values = ['Male', 'Female']
+# gender_values = ['Male', 'Female']
 #Occlusion_values = ['None','Watermarks','Other']
 
 
@@ -251,9 +260,9 @@ for i in range(len(expression_values)):
 	#rdbtn.config(image=icon_photos[expression_values[i]])
 	rdbtn.grid(row=1,column=i,sticky=W)
 
-for i in range(len(gender_values)):
-	rdbtn = Radiobutton(canvas2,text=gender_values[i], variable=v_gender,value = gender_values[i],font="Arial",fg='green',height=2,command = clicked)
-	rdbtn.grid(row=2,column=i,sticky=W)
+# for i in range(len(gender_values)):
+# 	rdbtn = Radiobutton(canvas2,text=gender_values[i], variable=v_gender,value = gender_values[i],font="Arial",fg='green',height=2,command = clicked)
+# 	rdbtn.grid(row=2,column=i,sticky=W)
 
 # for i in range(len(Occlusion_values)):
 # 	rdbtn = Radiobutton(canvas2,text=Occlusion_values[i], variable=v_occlusion,value = Occlusion_values[i],font="Arial",fg='green',height=2,command = clicked)
