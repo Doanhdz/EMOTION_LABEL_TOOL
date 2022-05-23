@@ -21,7 +21,7 @@ if len(line) == 0:
 	f.write('{}'.format(idx))
 	f.close()
 else:
-	idx = int(line[0])
+	idx = int(line[0]:)
 
 ls_img = []
 
